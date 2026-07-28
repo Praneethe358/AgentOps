@@ -10,8 +10,10 @@ class LLMService:
     async def generate(self, system_prompt: str, user_prompt: str) -> str:
         if not settings.OPENROUTER_API_KEY or settings.OPENROUTER_API_KEY == "sk-or-v1-your-key-here":
             if "Developer" in system_prompt:
+                if "Hello from Ephemeral Sandbox!" in user_prompt:
+                    return "```python\nprint('Hello from Ephemeral Sandbox!')\nsquared_numbers = [x**2 for x in range(1, 6)]\nprint('Squared numbers:', squared_numbers)\n```"
                 return "```python\ndef calculate_sum(a, b):\n    return a + b\n```"
-            return "Plan: Implement calculate_sum function taking two parameters and returning their sum."
+            return "Plan: Implement required Python script according to task description."
 
         headers = {
             "Authorization": f"Bearer {settings.OPENROUTER_API_KEY}",
