@@ -11,6 +11,14 @@ def route_after_sandbox(state: AgentOpsState) -> str:
         print("🔄 Routing: Sandbox Failed -> Developer (Self-Correction Loop)")
         return "developer"
 
+def route_after_human_review(state: AgentOpsState) -> str:
+    if state.get("human_approved"):
+        print("🎉 Routing: Approved by Human -> END (Task Completed)")
+        return END
+    else:
+        print("🚫 Routing: Rejected by Human -> END (Task Aborted)")
+        return END
+
 builder = StateGraph(AgentOpsState)
 
 # Add Nodes
@@ -31,6 +39,14 @@ builder.add_conditional_edges(
     {
         "human_review": "human_review",
         "developer": "developer"
+    }
+)
+
+builder.add_conditional_edges(
+    "human_review",
+    route_after_human_review,
+    {
+        END: END
     }
 )
 
