@@ -1,4 +1,5 @@
 import re
+from langgraph.types import interrupt
 from app.core.state import AgentOpsState
 from app.services.llm import llm_service
 from app.services.sandbox import sandbox_runner
@@ -38,11 +39,9 @@ async def developer_node(state: AgentOpsState) -> dict:
 
 
 async def docker_sandbox_node(state: AgentOpsState) -> dict:
-    """Executes generated code in an isolated Docker container."""
     print("🐳 [Docker Sandbox Node] Executing code in isolated container...")
     code = state.get("generated_code", "")
     
-    # Run in real ephemeral sandbox
     result = sandbox_runner.run_code_in_sandbox(code_content=code)
     
     if result["test_passed"]:
@@ -54,3 +53,31 @@ async def docker_sandbox_node(state: AgentOpsState) -> dict:
         "test_passed": result["test_passed"],
         "execution_logs": result["execution_logs"]
     }
+
+
+async def human_review_node(state: AgentOpsState) -> dict:
+    """
+    PAUSES execution using LangGraph native interrupt.
+    Surfaces generated code and sandbox logs to external API callers.
+    """
+    print("🛑 [Human Review Node] Triggering Interrupt for Human Review...")
+    
+    # Payload surfaced to client when graph pauses
+    approval_request = {
+        "action_required": "REVIEW_CODE_AND_APPROVE",
+        "generated_code": state["generated_code"],
+        "sandbox_logs": state["execution_logs"]
+    }
+    
+    # Graph execution suspends HERE until a Command(resume=...) is passed!
+    human_decision = interrupt(approval_request)
+    
+    print(f"📥 [Human Review Node] Resumed! Human Decision Received: {human_decision}")
+    
+    is_approved = bool(human_decision.get("approved", False)) if isinstance(human_decision, dict) else bool(human_decision)
+    
+    return {
+        "human_approved": is_approved,
+        "messages": [{"role": "user", "name": "HumanReviewer", "content": f"Approval Status: {is_approved}"}]
+    }
+
