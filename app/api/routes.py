@@ -61,6 +61,13 @@ async def stream_task_execution(thread_id: str):
     if not current_state.values:
         raise HTTPException(status_code=404, detail="Thread ID not found.")
 
+    def json_serializer(obj):
+        if hasattr(obj, "value"):
+            return obj.value
+        if hasattr(obj, "__dict__"):
+            return obj.__dict__
+        return str(obj)
+
     async def event_generator():
         # Stream events across graph nodes
         async for event in app.astream(None, config=config):
@@ -70,7 +77,7 @@ async def stream_task_execution(thread_id: str):
                     "state_update": state_update
                 }
                 # Standard SSE format: data: <json>\n\n
-                yield f"event: node_update\ndata: {json.dumps(data_payload)}\n\n"
+                yield f"event: node_update\ndata: {json.dumps(data_payload, default=json_serializer)}\n\n"
                 await asyncio.sleep(0.1)
                 
         # Check if paused at interrupt or finished completely
@@ -78,10 +85,10 @@ async def stream_task_execution(thread_id: str):
         if bool(final_state.next):
             interrupt_info = {
                 "status": "PAUSED_FOR_APPROVAL",
-                "next_node": final_state.next,
+                "next_node": list(final_state.next),
                 "payload": final_state.tasks[0].interrupts[0].value if final_state.tasks and final_state.tasks[0].interrupts else {}
             }
-            yield f"event: human_approval_required\ndata: {json.dumps(interrupt_info)}\n\n"
+            yield f"event: human_approval_required\ndata: {json.dumps(interrupt_info, default=json_serializer)}\n\n"
         else:
             yield f"event: complete\ndata: {json.dumps({'status': 'COMPLETED'})}\n\n"
 
