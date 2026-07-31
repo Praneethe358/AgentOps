@@ -27,10 +27,85 @@ st.markdown("""
         color: #e2e8f0;
     }
 
-    /* Sidebar Styling */
+    /* Sidebar Base Styling */
     [data-testid="stSidebar"] {
-        background-color: #0f172a !important;
+        background-color: #0d1322 !important;
         border-right: 1px solid #1e293b !important;
+    }
+
+    /* Sidebar Header Card */
+    .sidebar-brand-card {
+        background: #161e31;
+        border: 1px solid #283548;
+        border-radius: 8px;
+        padding: 14px 16px;
+        margin-bottom: 20px;
+    }
+    
+    .sidebar-brand-title {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #f8fafc;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .sidebar-brand-env {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #38bdf8;
+        background: rgba(56, 189, 248, 0.1);
+        border: 1px solid rgba(56, 189, 248, 0.25);
+        padding: 2px 6px;
+        border-radius: 4px;
+    }
+
+    /* Sidebar Section Title */
+    .sidebar-section-label {
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: #64748b;
+        margin-top: 18px;
+        margin-bottom: 10px;
+    }
+
+    /* Sidebar System Metric Grid */
+    .sys-metric-item {
+        background: #111827;
+        border: 1px solid #1f2937;
+        border-radius: 6px;
+        padding: 10px 12px;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .sys-metric-name {
+        font-size: 0.78rem;
+        color: #9ca3af;
+        font-weight: 500;
+    }
+    .sys-metric-val {
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: #10b981;
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Sidebar Step Item */
+    .pipeline-step-item {
+        background: #111827;
+        border: 1px solid #1f2937;
+        border-radius: 6px;
+        padding: 10px 12px;
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 0.8rem;
     }
 
     /* Top Navigation Header */
@@ -93,39 +168,7 @@ st.markdown("""
         background-color: currentColor;
     }
 
-    /* Stat Cards */
-    .metric-card-box {
-        background: #0f172a;
-        border: 1px solid #1e293b;
-        border-radius: 8px;
-        padding: 14px 18px;
-    }
-
-    .metric-label {
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        color: #64748b;
-    }
-
-    .metric-value {
-        font-size: 0.95rem;
-        font-weight: 600;
-        color: #38bdf8;
-        margin-top: 4px;
-        font-family: 'JetBrains Mono', monospace;
-    }
-
     /* Section Containers */
-    .panel-box {
-        background: #0f172a;
-        border: 1px solid #1e293b;
-        border-radius: 10px;
-        padding: 20px;
-        margin-bottom: 20px;
-    }
-
     .panel-header {
         font-size: 0.95rem;
         font-weight: 600;
@@ -240,39 +283,79 @@ if "interrupt_data" not in st.session_state:
 
 # Sidebar Configuration
 with st.sidebar:
-    st.markdown("<div style='font-size: 0.88rem; font-weight: 700; color: #f1f5f9; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 16px;'>System Overview</div>", unsafe_allow_html=True)
-    
-    st.markdown(f"""
-    <div class="metric-card-box" style="margin-bottom: 12px;">
-        <div class="metric-label">Active Thread ID</div>
-        <div class="metric-value">{st.session_state.thread_id or 'IDLE'}</div>
+    st.markdown("""
+    <div class="sidebar-brand-card">
+        <div class="sidebar-brand-title">
+            <span>⚡ AgentOps</span>
+            <span class="sidebar-brand-env">PROD</span>
+        </div>
+        <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 4px;">LangGraph + Docker Stack</div>
     </div>
     """, unsafe_allow_html=True)
     
+    st.markdown("<div class='sidebar-section-label'>Infrastructure Health</div>", unsafe_allow_html=True)
+    
     st.markdown(f"""
-    <div class="metric-card-box" style="margin-bottom: 16px;">
-        <div class="metric-label">Sandbox Engine</div>
-        <div class="metric-value" style="color: #10b981;">Docker Ephemeral Container</div>
+    <div class="sys-metric-item">
+        <span class="sys-metric-name">FastAPI Core</span>
+        <span class="sys-metric-val" style="color: {'#10b981' if backend_online else '#ef4444'};">{'ONLINE' if backend_online else 'OFFLINE'}</span>
+    </div>
+    <div class="sys-metric-item">
+        <span class="sys-metric-name">Postgres DB</span>
+        <span class="sys-metric-val">PORT 5433</span>
+    </div>
+    <div class="sys-metric-item">
+        <span class="sys-metric-name">LLM Engine</span>
+        <span class="sys-metric-val" style="color: #38bdf8;">Llama-3.3-70B</span>
+    </div>
+    <div class="sys-metric-item">
+        <span class="sys-metric-name">Docker Sandbox</span>
+        <span class="sys-metric-val">ACTIVE</span>
     </div>
     """, unsafe_allow_html=True)
     
-    st.markdown("<div style='font-size: 0.8rem; font-weight: 600; color: #94a3b8; margin-bottom: 8px;'>Execution Pipeline</div>", unsafe_allow_html=True)
-    
-    step1_badge = "🟢 Complete" if st.session_state.thread_id else "⚪ Idle"
-    step2_badge = "🟡 Review Gate" if st.session_state.is_paused else ("🟢 Complete" if any("COMPLETE" in l for l in st.session_state.execution_logs) else ("🔵 In Progress" if st.session_state.thread_id else "⚪ Pending"))
+    st.markdown("<div class='sidebar-section-label'>Active Session</div>", unsafe_allow_html=True)
     
     st.markdown(f"""
-    <div style="display: flex; flex-direction: column; gap: 8px; font-size: 0.82rem; color: #cbd5e1; margin-bottom: 24px;">
-        <div style="display: flex; justify-content: space-between;"><span>1. State Checkpoint</span> <span style="font-weight:600;">{step1_badge}</span></div>
-        <div style="display: flex; justify-content: space-between;"><span>2. Agent Reasoning</span> <span style="font-weight:600;">{step2_badge}</span></div>
-        <div style="display: flex; justify-content: space-between;"><span>3. Sandbox Execution</span> <span style="font-weight:600;">{step2_badge}</span></div>
-        <div style="display: flex; justify-content: space-between;"><span>4. Approval Gate</span> <span style="font-weight:600;">{step2_badge}</span></div>
+    <div style="background: #111827; border: 1px solid #1f2937; border-radius: 6px; padding: 12px;">
+        <div style="font-size: 0.7rem; color: #64748b; font-weight: 600; text-transform: uppercase;">State Thread Key</div>
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.88rem; color: #38bdf8; font-weight: 600; margin-top: 4px; word-break: break-all;">
+            {st.session_state.thread_id or 'IDLE_WAITING'}
+        </div>
+        <div style="font-size: 0.72rem; color: #9ca3af; margin-top: 8px; display: flex; justify-content: space-between;">
+            <span>Events Recorded:</span>
+            <span style="font-weight: 600; color: #f3f4f6;">{len(st.session_state.execution_logs)}</span>
+        </div>
     </div>
     """, unsafe_allow_html=True)
     
-    st.markdown("---")
+    st.markdown("<div class='sidebar-section-label'>Topology Pipeline</div>", unsafe_allow_html=True)
     
-    if st.button("Clear Thread Context", use_container_width=True):
+    step1_st = "🟢" if st.session_state.thread_id else "⚪"
+    step2_st = "🟡" if st.session_state.is_paused else ("🟢" if any("COMPLETE" in l for l in st.session_state.execution_logs) else ("🔵" if st.session_state.thread_id else "⚪"))
+    
+    st.markdown(f"""
+    <div class="pipeline-step-item">
+        <span style="color: #d1d5db;">1. Analyst Agent</span>
+        <span>{step1_st}</span>
+    </div>
+    <div class="pipeline-step-item">
+        <span style="color: #d1d5db;">2. Developer Agent</span>
+        <span>{step2_st}</span>
+    </div>
+    <div class="pipeline-step-item">
+        <span style="color: #d1d5db;">3. Docker Sandbox</span>
+        <span>{step2_st}</span>
+    </div>
+    <div class="pipeline-step-item">
+        <span style="color: #d1d5db;">4. Human Approval</span>
+        <span>{step2_st}</span>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("<div style='margin-top: 20px;'></div>", unsafe_allow_html=True)
+    
+    if st.button("🔄 Reset Thread State", use_container_width=True):
         st.session_state.thread_id = None
         st.session_state.execution_logs = []
         st.session_state.is_paused = False
