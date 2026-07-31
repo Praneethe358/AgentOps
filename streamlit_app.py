@@ -6,185 +6,194 @@ import time
 
 # Page Configuration
 st.set_page_config(
-    page_title="AgentOps | Mission Control",
+    page_title="AgentOps Enterprise | Orchestration Studio",
     page_icon="⚡",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS for Futuristic Premium UI
+# Custom CSS for Enterprise Software Aesthetic (Vercel / Linear / Datadog styled)
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@300;400;600;700;800&family=Outfit:wght@400;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
     html, body, [class*="css"] {
-        font-family: 'Inter', sans-serif;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     }
 
-    /* Main background & glassmorphism theme */
+    /* Dark Enterprise Palette */
     .stApp {
-        background: radial-gradient(circle at 10% 20%, rgba(15, 23, 42, 1) 0%, rgba(10, 15, 29, 1) 90%);
-        color: #f8fafc;
+        background-color: #0b0f19;
+        color: #e2e8f0;
     }
 
-    /* Header styling */
-    .brand-header {
-        background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.8) 100%);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 16px;
-        padding: 24px 32px;
-        margin-bottom: 24px;
-        backdrop-filter: blur(12px);
-        box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5), 0 0 20px rgba(99, 102, 241, 0.15);
-    }
-    
-    .brand-title {
-        font-family: 'Outfit', sans-serif;
-        font-size: 2.2rem;
-        font-weight: 800;
-        background: linear-gradient(90deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        margin: 0;
-        letter-spacing: -0.5px;
+    /* Sidebar Styling */
+    [data-testid="stSidebar"] {
+        background-color: #0f172a !important;
+        border-right: 1px solid #1e293b !important;
     }
 
-    .brand-subtitle {
-        color: #94a3b8;
-        font-size: 0.95rem;
-        margin-top: 6px;
-    }
-
-    /* Status Pill */
-    .status-pill {
-        display: inline-flex;
+    /* Top Navigation Header */
+    .top-nav {
+        display: flex;
+        justify-content: space-between;
         align-items: center;
-        gap: 8px;
-        padding: 6px 14px;
-        border-radius: 20px;
-        font-weight: 600;
-        font-size: 0.82rem;
-        letter-spacing: 0.5px;
-        text-transform: uppercase;
-    }
-    .status-online {
-        background: rgba(16, 185, 129, 0.15);
-        color: #10b981;
-        border: 1px solid rgba(16, 185, 129, 0.3);
-        box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
-    }
-    .status-offline {
-        background: rgba(239, 68, 68, 0.15);
-        color: #ef4444;
-        border: 1px solid rgba(239, 68, 68, 0.3);
-    }
-    .status-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background-color: currentColor;
-        animation: pulse 2s infinite;
+        padding: 16px 24px;
+        background: #0f172a;
+        border: 1px solid #1e293b;
+        border-radius: 10px;
+        margin-bottom: 24px;
     }
 
-    @keyframes pulse {
-        0% { opacity: 1; transform: scale(1); }
-        50% { opacity: 0.4; transform: scale(1.2); }
-        100% { opacity: 1; transform: scale(1); }
-    }
-
-    /* Cards */
-    .card-box {
-        background: rgba(30, 41, 59, 0.5);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 14px;
-        padding: 20px;
-        margin-bottom: 20px;
-        backdrop-filter: blur(10px);
-        transition: transform 0.2s ease, border-color 0.2s ease;
-    }
-    .card-box:hover {
-        border-color: rgba(99, 102, 241, 0.4);
-    }
-
-    /* Section Titles */
-    .section-header {
-        font-family: 'Outfit', sans-serif;
+    .brand-title-enterprise {
         font-size: 1.25rem;
         font-weight: 700;
-        color: #f1f5f9;
+        color: #f8fafc;
+        letter-spacing: -0.3px;
         display: flex;
         align-items: center;
         gap: 10px;
-        margin-bottom: 16px;
     }
-    
-    .section-icon {
-        background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
-        border-radius: 8px;
-        width: 32px;
-        height: 32px;
+
+    .brand-subtitle-enterprise {
+        font-size: 0.82rem;
+        color: #94a3b8;
+        margin: 0;
+    }
+
+    /* Enterprise Status Badge */
+    .badge-status {
         display: inline-flex;
         align-items: center;
-        justify-content: center;
-        font-size: 1rem;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+        text-transform: uppercase;
     }
 
-    /* HITL Warning Banner */
-    .hitl-banner {
-        background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(217, 119, 6, 0.05) 100%);
-        border: 1px solid rgba(245, 158, 11, 0.4);
-        border-radius: 14px;
-        padding: 20px;
-        margin-top: 20px;
-        margin-bottom: 24px;
-        box-shadow: 0 0 25px rgba(245, 158, 11, 0.15);
+    .badge-online {
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+        border: 1px solid rgba(16, 185, 129, 0.3);
     }
-    .hitl-title {
-        color: #fbbf24;
-        font-family: 'Outfit', sans-serif;
-        font-weight: 700;
-        font-size: 1.15rem;
+
+    .badge-offline {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .status-indicator-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background-color: currentColor;
+    }
+
+    /* Stat Cards */
+    .metric-card-box {
+        background: #0f172a;
+        border: 1px solid #1e293b;
+        border-radius: 8px;
+        padding: 14px 18px;
+    }
+
+    .metric-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #64748b;
+    }
+
+    .metric-value {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #38bdf8;
+        margin-top: 4px;
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Section Containers */
+    .panel-box {
+        background: #0f172a;
+        border: 1px solid #1e293b;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .panel-header {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #f1f5f9;
+        margin-bottom: 14px;
         display: flex;
         align-items: center;
-        gap: 8px;
-        margin-bottom: 12px;
+        justify-content: space-between;
     }
 
-    /* Code & Terminal Styling */
-    code, stCode {
-        font-family: 'Fira Code', monospace !important;
+    /* Form Fields */
+    div[data-baseweb="textarea"] {
+        background-color: #0b0f19 !important;
+        border: 1px solid #334155 !important;
+        border-radius: 6px !important;
+        color: #f8fafc !important;
     }
 
-    /* Primary Buttons */
-    div.stButton > button[kind="primary"] {
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
-        border: none !important;
-        color: white !important;
-        font-weight: 700 !important;
-        border-radius: 10px !important;
-        padding: 10px 24px !important;
-        box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3) !important;
-        transition: all 0.2s ease !important;
-    }
-    div.stButton > button[kind="primary"]:hover {
-        transform: translateY(-1px) !important;
-        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5) !important;
+    div[data-baseweb="textarea"]:focus-within {
+        border-color: #3b82f6 !important;
     }
 
-    /* Form Submit Button */
+    /* Buttons */
+    div.stButton > button {
+        border-radius: 6px !important;
+        font-weight: 600 !important;
+        font-size: 0.88rem !important;
+        padding: 8px 16px !important;
+        transition: background-color 0.15s ease !important;
+    }
+
     div.stFormSubmitButton > button {
-        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%) !important;
-        border: none !important;
-        color: white !important;
-        font-weight: 700 !important;
-        border-radius: 10px !important;
-        padding: 12px 24px !important;
-        box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35) !important;
-        transition: all 0.2s ease !important;
+        background-color: #2563eb !important;
+        color: #ffffff !important;
+        border: 1px solid #3b82f6 !important;
+        border-radius: 6px !important;
+        font-weight: 600 !important;
     }
+
     div.stFormSubmitButton > button:hover {
-        transform: translateY(-1px) !important;
-        box-shadow: 0 6px 20px rgba(99, 102, 241, 0.55) !important;
+        background-color: #1d4ed8 !important;
+    }
+
+    div.stButton > button[kind="primary"] {
+        background-color: #059669 !important;
+        color: #ffffff !important;
+        border: 1px solid #10b981 !important;
+    }
+
+    div.stButton > button[kind="primary"]:hover {
+        background-color: #047857 !important;
+    }
+
+    /* Code & Terminal Font */
+    code, pre {
+        font-family: 'JetBrains Mono', monospace !important;
+        font-size: 0.85rem !important;
+    }
+
+    /* HITL Review Box */
+    .hitl-review-container {
+        background: #111827;
+        border: 1px solid #374151;
+        border-left: 4px solid #f59e0b;
+        border-radius: 8px;
+        padding: 20px;
+        margin-top: 16px;
+        margin-bottom: 24px;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -200,20 +209,21 @@ try:
 except Exception:
     backend_online = False
 
-# Header HTML
+# Top Navigation Bar
 st.markdown(f"""
-<div class="brand-header">
-    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
-        <div>
-            <h1 class="brand-title">⚡ AgentOps Mission Control</h1>
-            <p class="brand-subtitle">Autonomous Multi-Agent Orchestrator with Ephemeral Sandboxing & Human-in-the-Loop Approval</p>
+<div class="top-nav">
+    <div>
+        <div class="brand-title-enterprise">
+            <span>AgentOps Studio</span>
+            <span style="font-size: 0.75rem; background: #1e293b; color: #94a3b8; padding: 2px 8px; border-radius: 4px; font-weight: 500;">v0.1.0-enterprise</span>
         </div>
-        <div>
-            <span class="status-pill {'status-online' if backend_online else 'status-offline'}">
-                <span class="status-dot"></span>
-                FastAPI Engine: {'ONLINE' if backend_online else 'OFFLINE'}
-            </span>
-        </div>
+        <p class="brand-subtitle-enterprise">Multi-Agent Task Orchestration Engine & Ephemeral Docker Sandbox</p>
+    </div>
+    <div>
+        <span class="badge-status {'badge-online' if backend_online else 'badge-offline'}">
+            <span class="status-indicator-dot"></span>
+            {'FastAPI Service Operational' if backend_online else 'Service Disconnected'}
+        </span>
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -230,95 +240,95 @@ if "interrupt_data" not in st.session_state:
 
 # Sidebar Configuration
 with st.sidebar:
-    st.markdown("<h3 style='font-family: Outfit; font-weight: 700; margin-bottom: 20px;'>⚙️ Control Panel</h3>", unsafe_allow_html=True)
+    st.markdown("<div style='font-size: 0.88rem; font-weight: 700; color: #f1f5f9; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 16px;'>System Overview</div>", unsafe_allow_html=True)
     
-    # Active Thread Metric Card
     st.markdown(f"""
-    <div class="card-box" style="padding: 16px;">
-        <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Active State Thread</div>
-        <div style="font-family: 'Fira Code', monospace; font-size: 0.95rem; color: #38bdf8; font-weight: 600; margin-top: 6px; word-break: break-all;">
-            {st.session_state.thread_id or 'Idle (No Task Running)'}
-        </div>
+    <div class="metric-card-box" style="margin-bottom: 12px;">
+        <div class="metric-label">Active Thread ID</div>
+        <div class="metric-value">{st.session_state.thread_id or 'IDLE'}</div>
     </div>
     """, unsafe_allow_html=True)
     
-    st.markdown("### 📊 Workflow Pipeline")
+    st.markdown(f"""
+    <div class="metric-card-box" style="margin-bottom: 16px;">
+        <div class="metric-label">Sandbox Engine</div>
+        <div class="metric-value" style="color: #10b981;">Docker Ephemeral Container</div>
+    </div>
+    """, unsafe_allow_html=True)
     
-    # Pipeline status steps
-    step1_status = "✅" if st.session_state.thread_id else "⚪"
-    step2_status = "🔄" if st.session_state.thread_id and not st.session_state.is_paused else ("✅" if st.session_state.is_paused or any("COMPLETE" in l for l in st.session_state.execution_logs) else "⚪")
-    step3_status = "⏸️ PAUSED" if st.session_state.is_paused else ("✅ COMPLETE" if any("COMPLETE" in l for l in st.session_state.execution_logs) else "⚪ WAITING")
+    st.markdown("<div style='font-size: 0.8rem; font-weight: 600; color: #94a3b8; margin-bottom: 8px;'>Execution Pipeline</div>", unsafe_allow_html=True)
+    
+    step1_badge = "🟢 Complete" if st.session_state.thread_id else "⚪ Idle"
+    step2_badge = "🟡 Review Gate" if st.session_state.is_paused else ("🟢 Complete" if any("COMPLETE" in l for l in st.session_state.execution_logs) else ("🔵 In Progress" if st.session_state.thread_id else "⚪ Pending"))
     
     st.markdown(f"""
-    <div style="display: flex; flex-direction: column; gap: 10px; font-size: 0.88rem; color: #cbd5e1; margin-bottom: 20px;">
-        <div style="display: flex; align-items: center; gap: 8px;"><span>{step1_status}</span> <span>1. Task Submission</span></div>
-        <div style="display: flex; align-items: center; gap: 8px;"><span>{step2_status}</span> <span>2. Agent Reasoning & Fix</span></div>
-        <div style="display: flex; align-items: center; gap: 8px;"><span>{step2_status}</span> <span>3. Docker Container Execution</span></div>
-        <div style="display: flex; align-items: center; gap: 8px;"><span>{step3_status}</span> <span>4. Human Approval Gate</span></div>
+    <div style="display: flex; flex-direction: column; gap: 8px; font-size: 0.82rem; color: #cbd5e1; margin-bottom: 24px;">
+        <div style="display: flex; justify-content: space-between;"><span>1. State Checkpoint</span> <span style="font-weight:600;">{step1_badge}</span></div>
+        <div style="display: flex; justify-content: space-between;"><span>2. Agent Reasoning</span> <span style="font-weight:600;">{step2_badge}</span></div>
+        <div style="display: flex; justify-content: space-between;"><span>3. Sandbox Execution</span> <span style="font-weight:600;">{step2_badge}</span></div>
+        <div style="display: flex; justify-content: space-between;"><span>4. Approval Gate</span> <span style="font-weight:600;">{step2_badge}</span></div>
     </div>
     """, unsafe_allow_html=True)
     
     st.markdown("---")
     
-    if st.button("🔄 Reset Session & Clear Logs", use_container_width=True):
+    if st.button("Clear Thread Context", use_container_width=True):
         st.session_state.thread_id = None
         st.session_state.execution_logs = []
         st.session_state.is_paused = False
         st.session_state.interrupt_data = None
         st.rerun()
 
-# Layout Columns: Task Submission & Live Stream
-col_left, col_right = st.columns([1, 1], gap="large")
+# Workspace Split View
+col1, col2 = st.columns([1, 1], gap="medium")
 
-with col_left:
+with col1:
     st.markdown("""
-    <div class="section-header">
-        <div class="section-icon">📝</div>
-        <span>1. Dispatch Coding Task</span>
+    <div class="panel-header">
+        <span>Task Dispatch Console</span>
+        <span style="font-size: 0.75rem; color: #64748b;">POST /api/v1/tasks/submit</span>
     </div>
     """, unsafe_allow_html=True)
     
-    with st.form("task_form"):
+    with st.form("task_dispatch_form"):
         task_description = st.text_area(
-            "Task Prompt",
-            placeholder="e.g., Write a python function `is_palindrome(s)` that returns True if string s is a palindrome.",
-            height=120,
-            help="Describe the code feature, function, or bug fix required."
+            "Specification / Requirements",
+            placeholder="Enter task requirement (e.g., Write a python function `is_palindrome(s)` to check string palindromes).",
+            height=120
         )
         code_context = st.text_area(
-            "Existing Code Context (Optional)",
-            placeholder="# Provide existing functions or environment definitions here...",
+            "Code Base Context (Optional)",
+            placeholder="Existing source code or type definitions...",
             height=80
         )
-        submit_button = st.form_submit_button("🚀 Launch AgentOps Pipeline", use_container_width=True)
+        submit_btn = st.form_submit_button("Run Task Orchestration", use_container_width=True)
 
-    if submit_button and task_description:
+    if submit_btn and task_description:
         st.session_state.execution_logs = []
         st.session_state.is_paused = False
         st.session_state.interrupt_data = None
 
-        with st.spinner("Initializing PostgreSQL checkpoint state..."):
-            try:
-                resp = httpx.post(
-                    f"{API_BASE_URL}/submit",
-                    json={"task_description": task_description, "code_context": code_context},
-                    timeout=10.0
-                )
-                if resp.status_code == 200:
-                    data = resp.json()
-                    st.session_state.thread_id = data["thread_id"]
-                    st.toast(f"Task Initialized! Thread: {st.session_state.thread_id}", icon="✅")
-                    st.rerun()
-                else:
-                    st.error(f"Submission failed: {resp.text}")
-            except Exception as e:
-                st.error(f"Connection Error: {e}")
+        try:
+            resp = httpx.post(
+                f"{API_BASE_URL}/submit",
+                json={"task_description": task_description, "code_context": code_context},
+                timeout=10.0
+            )
+            if resp.status_code == 200:
+                data = resp.json()
+                st.session_state.thread_id = data["thread_id"]
+                st.toast(f"Thread initialized: {st.session_state.thread_id}", icon="✅")
+                st.rerun()
+            else:
+                st.error(f"Error submitting task: {resp.text}")
+        except Exception as e:
+            st.error(f"Network error: {e}")
 
-with col_right:
+with col2:
     st.markdown("""
-    <div class="section-header">
-        <div class="section-icon">📡</div>
-        <span>2. Live Agent Execution Stream</span>
+    <div class="panel-header">
+        <span>Live Execution Output</span>
+        <span style="font-size: 0.75rem; color: #64748b;">GET /api/v1/tasks/stream</span>
     </div>
     """, unsafe_allow_html=True)
     
@@ -326,7 +336,7 @@ with col_right:
 
     def render_logs():
         formatted_logs = "\n".join(st.session_state.execution_logs)
-        log_container.code(formatted_logs or "Awaiting task dispatch...\nSubmit a prompt to view real-time node state transitions.", language="text")
+        log_container.code(formatted_logs or "[IDLE] System ready. Submit a task to begin stream.", language="text")
 
     render_logs()
 
@@ -342,7 +352,7 @@ def listen_to_sse_stream(thread_id: str):
                         payload = json.loads(sse.data)
                         node_name = payload.get("node", "Unknown")
                         timestamp = time.strftime("%H:%M:%S")
-                        log_line = f"[{timestamp}] ➔ [NODE EXECUTED]: {node_name.upper()}"
+                        log_line = f"[{timestamp}] INFO  - Node Completed: {node_name.upper()}"
                         st.session_state.execution_logs.append(log_line)
                         render_logs()
 
@@ -351,56 +361,58 @@ def listen_to_sse_stream(thread_id: str):
                         st.session_state.is_paused = True
                         st.session_state.interrupt_data = payload
                         timestamp = time.strftime("%H:%M:%S")
-                        st.session_state.execution_logs.append(f"[{timestamp}] ⏸️ [SYSTEM PAUSED]: Interrupt Gate - Human Review Required!")
+                        st.session_state.execution_logs.append(f"[{timestamp}] PAUSE - Graph Suspended: Waiting for Human Approval Signal")
                         render_logs()
                         st.rerun()
                         break
 
                     elif sse.event == "complete":
                         timestamp = time.strftime("%H:%M:%S")
-                        st.session_state.execution_logs.append(f"[{timestamp}] 🎉 [WORKFLOW COMPLETE]: Task finished successfully!")
+                        st.session_state.execution_logs.append(f"[{timestamp}] SUCCESS - Execution Graph Completed")
                         render_logs()
                         break
 
     except Exception as e:
-        st.error(f"Stream Error: {e}")
+        st.error(f"Stream exception: {e}")
 
-# Trigger SSE stream listening
+# Stream Listener Trigger
 if st.session_state.thread_id and not st.session_state.is_paused:
-    if not any("WORKFLOW COMPLETE" in log for log in st.session_state.execution_logs):
+    if not any("SUCCESS" in log for log in st.session_state.execution_logs):
         listen_to_sse_stream(st.session_state.thread_id)
 
-# Human-in-the-Loop Gate Banner & Code Review Section
+# Human-in-the-Loop Review Section
 if st.session_state.is_paused and st.session_state.interrupt_data:
     st.markdown("""
-    <div class="hitl-banner">
-        <div class="hitl-title">⚠️ ACTION REQUIRED: Human-in-the-Loop Review Gate</div>
-        <p style="color: #cbd5e1; font-size: 0.9rem; margin-bottom: 0;">
-            The execution graph has suspended at the approval gate. Review the code generated by the LLM Developer Agent and the verification output from the Docker Sandbox before proceeding.
-        </p>
+    <div class="hitl-review-container">
+        <div style="font-weight: 700; font-size: 1rem; color: #f59e0b; margin-bottom: 6px;">
+            ⚠️ Approval Gate Triggered — Code Verification Required
+        </div>
+        <div style="font-size: 0.85rem; color: #9ca3af;">
+            Review generated code artifacts and sandbox container output before signaling continuation.
+        </div>
     </div>
     """, unsafe_allow_html=True)
     
     payload = st.session_state.interrupt_data.get("payload", {})
-    code_to_review = payload.get("generated_code", "# No code generated")
-    sandbox_logs = payload.get("sandbox_logs", "No execution logs recorded")
+    code_to_review = payload.get("generated_code", "# No code output")
+    sandbox_logs = payload.get("sandbox_logs", "No logs recorded")
 
-    rev_col1, rev_col2 = st.columns(2, gap="large")
+    r_col1, r_col2 = st.columns(2, gap="medium")
     
-    with rev_col1:
-        st.markdown("#### 💻 Generated Python Fix Code")
+    with r_col1:
+        st.markdown("<div style='font-size: 0.85rem; font-weight: 600; color: #e2e8f0; margin-bottom: 6px;'>Generated Artifact (solution.py)</div>", unsafe_allow_html=True)
         st.code(code_to_review, language="python")
 
-    with rev_col2:
-        st.markdown("#### 🐳 Ephemeral Docker Sandbox Output")
+    with r_col2:
+        st.markdown("<div style='font-size: 0.85rem; font-weight: 600; color: #e2e8f0; margin-bottom: 6px;'>Sandbox Logs (Docker Container)</div>", unsafe_allow_html=True)
         st.code(sandbox_logs, language="text")
 
-    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("<div style='margin-top: 16px;'></div>", unsafe_allow_html=True)
     
-    btn_col1, btn_col2, _ = st.columns([1.5, 1.5, 3])
+    btn1, btn2, _ = st.columns([1.5, 1.5, 3])
     
-    with btn_col1:
-        if st.button("✅ Approve & Resume Execution", type="primary", use_container_width=True):
+    with btn1:
+        if st.button("Approve & Continue", type="primary", use_container_width=True):
             try:
                 approve_resp = httpx.post(
                     f"{API_BASE_URL}/{st.session_state.thread_id}/approve",
@@ -408,18 +420,16 @@ if st.session_state.is_paused and st.session_state.interrupt_data:
                     timeout=10.0
                 )
                 if approve_resp.status_code == 200:
-                    st.toast("Approved! Resuming workflow graph...", icon="🎉")
+                    st.toast("Approved. Execution resumed.", icon="✅")
                     st.session_state.is_paused = False
                     st.session_state.interrupt_data = None
                     time.sleep(1)
                     st.rerun()
-                else:
-                    st.error("Failed to submit approval.")
             except Exception as e:
                 st.error(f"Approval error: {e}")
 
-    with btn_col2:
-        if st.button("❌ Reject & Abort Workflow", use_container_width=True):
+    with btn2:
+        if st.button("Reject & Abort", use_container_width=True):
             try:
                 reject_resp = httpx.post(
                     f"{API_BASE_URL}/{st.session_state.thread_id}/approve",
@@ -427,10 +437,10 @@ if st.session_state.is_paused and st.session_state.interrupt_data:
                     timeout=10.0
                 )
                 if reject_resp.status_code == 200:
-                    st.toast("Rejected! Workflow state aborted.", icon="🛑")
+                    st.toast("Execution aborted.", icon="🛑")
                     st.session_state.is_paused = False
                     st.session_state.interrupt_data = None
-                    st.session_state.execution_logs.append("🚫 [WORKFLOW ABORTED]: Decision signal REJECTED by Human Reviewer.")
+                    st.session_state.execution_logs.append("ABORT - User rejected execution.")
                     time.sleep(1)
                     st.rerun()
             except Exception as e:
