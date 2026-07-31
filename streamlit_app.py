@@ -7,7 +7,6 @@ import time
 # Page Configuration
 st.set_page_config(
     page_title="AgentOps Enterprise | Orchestration Studio",
-    page_icon="⚡",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -286,7 +285,7 @@ with st.sidebar:
     st.markdown("""
     <div class="sidebar-brand-card">
         <div class="sidebar-brand-title">
-            <span>⚡ AgentOps</span>
+            <span>AgentOps</span>
             <span class="sidebar-brand-env">PROD</span>
         </div>
         <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 4px;">LangGraph + Docker Stack</div>
@@ -331,31 +330,31 @@ with st.sidebar:
     
     st.markdown("<div class='sidebar-section-label'>Topology Pipeline</div>", unsafe_allow_html=True)
     
-    step1_st = "🟢" if st.session_state.thread_id else "⚪"
-    step2_st = "🟡" if st.session_state.is_paused else ("🟢" if any("COMPLETE" in l for l in st.session_state.execution_logs) else ("🔵" if st.session_state.thread_id else "⚪"))
+    step1_st = "[DONE]" if st.session_state.thread_id else "[IDLE]"
+    step2_st = "[PAUSED]" if st.session_state.is_paused else ("[DONE]" if any("COMPLETE" in l for l in st.session_state.execution_logs) else ("[BUSY]" if st.session_state.thread_id else "[IDLE]"))
     
     st.markdown(f"""
     <div class="pipeline-step-item">
         <span style="color: #d1d5db;">1. Analyst Agent</span>
-        <span>{step1_st}</span>
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: #38bdf8;">{step1_st}</span>
     </div>
     <div class="pipeline-step-item">
         <span style="color: #d1d5db;">2. Developer Agent</span>
-        <span>{step2_st}</span>
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: #38bdf8;">{step2_st}</span>
     </div>
     <div class="pipeline-step-item">
         <span style="color: #d1d5db;">3. Docker Sandbox</span>
-        <span>{step2_st}</span>
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: #38bdf8;">{step2_st}</span>
     </div>
     <div class="pipeline-step-item">
         <span style="color: #d1d5db;">4. Human Approval</span>
-        <span>{step2_st}</span>
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: #38bdf8;">{step2_st}</span>
     </div>
     """, unsafe_allow_html=True)
     
     st.markdown("<div style='margin-top: 20px;'></div>", unsafe_allow_html=True)
     
-    if st.button("🔄 Reset Thread State", use_container_width=True):
+    if st.button("Reset Thread State", use_container_width=True):
         st.session_state.thread_id = None
         st.session_state.execution_logs = []
         st.session_state.is_paused = False
@@ -400,7 +399,7 @@ with col1:
             if resp.status_code == 200:
                 data = resp.json()
                 st.session_state.thread_id = data["thread_id"]
-                st.toast(f"Thread initialized: {st.session_state.thread_id}", icon="✅")
+                st.toast(f"Thread initialized: {st.session_state.thread_id}")
                 st.rerun()
             else:
                 st.error(f"Error submitting task: {resp.text}")
@@ -468,7 +467,7 @@ if st.session_state.is_paused and st.session_state.interrupt_data:
     st.markdown("""
     <div class="hitl-review-container">
         <div style="font-weight: 700; font-size: 1rem; color: #f59e0b; margin-bottom: 6px;">
-            ⚠️ Approval Gate Triggered — Code Verification Required
+            [ATTENTION] Approval Gate Triggered - Code Verification Required
         </div>
         <div style="font-size: 0.85rem; color: #9ca3af;">
             Review generated code artifacts and sandbox container output before signaling continuation.
@@ -503,7 +502,7 @@ if st.session_state.is_paused and st.session_state.interrupt_data:
                     timeout=10.0
                 )
                 if approve_resp.status_code == 200:
-                    st.toast("Approved. Execution resumed.", icon="✅")
+                    st.toast("Approved. Execution resumed.")
                     st.session_state.is_paused = False
                     st.session_state.interrupt_data = None
                     time.sleep(1)
@@ -520,7 +519,7 @@ if st.session_state.is_paused and st.session_state.interrupt_data:
                     timeout=10.0
                 )
                 if reject_resp.status_code == 200:
-                    st.toast("Execution aborted.", icon="🛑")
+                    st.toast("Execution aborted.")
                     st.session_state.is_paused = False
                     st.session_state.interrupt_data = None
                     st.session_state.execution_logs.append("ABORT - User rejected execution.")
