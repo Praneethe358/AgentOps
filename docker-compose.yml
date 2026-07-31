@@ -1,6 +1,7 @@
 version: '3.8'
 
 services:
+  # 1. PostgreSQL Checkpointer Database
   agentops_postgres:
     image: postgres:16-alpine
     container_name: agentops_postgres
@@ -9,10 +10,47 @@ services:
       POSTGRES_PASSWORD: postgrespassword
       POSTGRES_DB: agentops_db
     ports:
-      - "5433:5432"
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d agentops_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # 2. FastAPI Agent Orchestrator Backend
+  agentops_api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: agentops_api
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    environment:
+      - POSTGRES_URI=postgresql://postgres:postgrespassword@agentops_postgres:5432/agentops_db?sslmode=disable
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+    volumes:
+      # Mount host Docker socket so API container can trigger sibling sandbox containers
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      agentops_postgres:
+        condition: service_healthy
+
+  # 3. Streamlit Web Dashboard
+  agentops_dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: agentops_dashboard
+    command: streamlit run streamlit_app.py --server.port=8501 --server.address=0.0.0.0
+    ports:
+      - "8501:8501"
+    environment:
+      - API_BASE_URL=http://agentops_api:8000/api/v1/tasks
+    depends_on:
+      - agentops_api
 
 volumes:
   postgres_data:
