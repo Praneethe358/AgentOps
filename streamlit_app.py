@@ -1,6 +1,6 @@
 import streamlit as st
 import httpx
-from httpx_sse import connect_httpx_sse
+from httpx_sse import connect_sse
 import json
 import time
 
@@ -106,7 +106,7 @@ def listen_to_sse_stream(thread_id: str):
     
     try:
         with httpx.Client(timeout=None) as client:
-            with connect_httpx_sse(client, "GET", stream_url) as event_source:
+            with connect_sse(client, "GET", stream_url) as event_source:
                 for sse in event_source.iter_sse():
                     if sse.event == "node_update":
                         payload = json.loads(sse.data)
