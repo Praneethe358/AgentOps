@@ -3,7 +3,7 @@ import json
 from app.core.config import settings
 
 class LLMService:
-    def __init__(self, model_name: str = "meta-llama/llama-3.3-70b-instruct:free"):
+    def __init__(self, model_name: str = "meta-llama/llama-3.3-70b-instruct"):
         self.model_name = model_name
         self.api_url = "https://openrouter.ai/api/v1/chat/completions"
 
@@ -31,7 +31,19 @@ class LLMService:
 
         async with httpx.AsyncClient(timeout=30.0) as client:
             response = await client.post(self.api_url, headers=headers, json=payload)
-            response.raise_for_status()
+            if response.status_code != 200:
+                print(f"⚠️ [LLM API Error] Status: {response.status_code}, Response: {response.text}")
+                # Try fallback model if model 404s
+                if response.status_code in (404, 400):
+                    print("🔄 Retrying with fallback model 'meta-llama/llama-3.1-8b-instruct'...")
+                    payload["model"] = "meta-llama/llama-3.1-8b-instruct"
+                    fallback_resp = await client.post(self.api_url, headers=headers, json=payload)
+                    if fallback_resp.status_code == 200:
+                        data = fallback_resp.json()
+                        return data["choices"][0]["message"]["content"]
+                    else:
+                        print(f"⚠️ [Fallback LLM Error] Status: {fallback_resp.status_code}, Response: {fallback_resp.text}")
+                response.raise_for_status()
             data = response.json()
             return data["choices"][0]["message"]["content"]
 
