@@ -47,6 +47,33 @@ graph TD
 
 ---
 
+## 📁 Repository Structure
+
+```
+AgentOps/
+├── app/
+│   ├── agents/            # LangGraph State Machine & Agent Nodes
+│   │   ├── graph.py       # Compiled Graph Topology & Routing Logic
+│   │   └── nodes.py       # Analyst, Developer, Sandbox & HITL Nodes
+│   ├── api/               # FastAPI Application Layer
+│   │   ├── routes.py      # Endpoints, SSE generators & Serializers
+│   │   └── schemas.py     # Pydantic Request/Response DTO Models
+│   ├── core/              # Global Settings & Pydantic Configuration
+│   ├── db/                # PostgreSQL Connection & Async Checkpointer
+│   ├── services/          # OpenRouter LLM & Docker Sandbox Execution Services
+│   └── main.py            # FastAPI Application Instance & Lifespan
+├── .github/
+│   └── workflows/
+│       └── ci.yml         # GitHub Actions CI Workflow Matrix
+├── Dockerfile             # Multi-stage Docker Build (Builder -> Runner)
+├── docker-compose.yml     # Multi-container Production Orchestration
+├── requirements.txt       # Project Dependencies
+├── streamlit_app.py       # Enterprise Web Control Dashboard
+└── test_phase1.py .. 5.py # Automated Validation Test Suite
+```
+
+---
+
 ## ⚙️ Prerequisites & Environment Configuration
 
 ### Prerequisites
@@ -156,3 +183,40 @@ Serves a Server-Sent Events (`text/event-stream`) stream pushing node progress:
   "message": "Graph resumed with approval state: True"
 }
 ```
+
+---
+
+## 🧪 Running Validation Tests
+
+Execute the phase-by-phase automated verification test suite:
+
+```bash
+# Test 1: Checkpointer & Postgres State Database Connection
+python3 test_phase1.py
+
+# Test 2: Analyst & Developer LLM Agent Graph Topology
+python3 test_phase2.py
+
+# Test 3: Ephemeral Docker Sandbox Container Execution
+python3 test_phase3.py
+
+# Test 4: LangGraph Native Interrupt & Human Resume Gate
+python3 test_phase4.py
+
+# Test 5: End-to-End FastAPI REST & SSE Streaming Suite
+python3 test_phase5.py
+```
+
+---
+
+## 🛠️ CI/CD Pipeline
+
+Automated integration checks run on every push to `main` via GitHub Actions (`.github/workflows/ci.yml`):
+1. Provisions a live PostgreSQL 16 service container.
+2. Installs Python dependencies and verifies checkpointer persistence logic.
+3. Builds and tags the multi-stage Docker image to ensure deployment readiness.
+
+---
+
+## 📄 License
+Distributed under the MIT License.
