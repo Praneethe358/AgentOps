@@ -44,3 +44,61 @@ graph TD
 - **Stateful Human-in-the-Loop (HITL) Gate**: Integrates native LangGraph `interrupt()` calls backed by PostgreSQL checkpointing to pause execution mid-workflow and await human verification (`Approve` or `Reject`).
 - **Real-Time SSE Event Streaming**: Pushes live state transitions and container output logs to connected clients via Server-Sent Events without polling.
 - **Enterprise Web Control Center**: Clean Streamlit dashboard for real-time task dispatching, system health monitoring, code diff inspection, and review approvals.
+
+---
+
+## ⚙️ Prerequisites & Environment Configuration
+
+### Prerequisites
+- **Python 3.11+**
+- **Docker & Docker Compose**
+- **PostgreSQL 16+**
+- **OpenRouter API Key** (for LLM model inference)
+
+### Environment Setup (`.env`)
+Create a `.env` file in the root directory:
+
+```env
+PROJECT_NAME="AgentOps Orchestrator"
+POSTGRES_URI="postgresql://postgres:postgrespassword@localhost:5433/agentops_db?sslmode=disable"
+OPENROUTER_API_KEY="sk-or-v1-your-openrouter-api-key"
+```
+
+---
+
+## 🚀 Quick Start Guide
+
+### Option 1: Multi-Service Container Stack (Recommended)
+Launch the entire stack (PostgreSQL, FastAPI Backend, and Streamlit Web UI):
+
+```bash
+docker-compose up --build -d
+```
+
+- **FastAPI OpenAPI Documentation**: [http://localhost:8000/docs](http://localhost:8000/docs)
+- **Streamlit Web Control Center**: [http://localhost:8501](http://localhost:8501)
+- **PostgreSQL Checkpointer Database**: `localhost:5433`
+
+### Option 2: Local Python Virtual Environment Setup
+
+1. **Create and activate virtual environment**:
+   ```bash
+   python3 -m venv .venv
+   source .venv/bin/activate
+   pip install -r requirements.txt
+   ```
+
+2. **Start PostgreSQL Checkpointer Service**:
+   ```bash
+   docker-compose up agentops_postgres -d
+   ```
+
+3. **Launch FastAPI Backend**:
+   ```bash
+   uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+   ```
+
+4. **Launch Streamlit Control Dashboard** (in another terminal):
+   ```bash
+   streamlit run streamlit_app.py --server.port 8501
+   ```
