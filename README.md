@@ -102,3 +102,57 @@ docker-compose up --build -d
    ```bash
    streamlit run streamlit_app.py --server.port 8501
    ```
+
+---
+
+## 📡 REST API Reference
+
+### 1. Health Check
+`GET /health`
+```json
+{
+  "status": "healthy",
+  "service": "AgentOps API"
+}
+```
+
+### 2. Submit Coding Task
+`POST /api/v1/tasks/submit`
+**Request Body**:
+```json
+{
+  "task_description": "Write a python function is_palindrome(s) that checks if a string is a palindrome.",
+  "code_context": "# Optional existing context"
+}
+```
+**Response**:
+```json
+{
+  "task_id": "task-926f8b2e",
+  "thread_id": "thread-e6387f21",
+  "message": "Task initialized successfully. Connect to /stream endpoint to execute."
+}
+```
+
+### 3. Real-Time SSE Stream
+`GET /api/v1/tasks/{thread_id}/stream`  
+Serves a Server-Sent Events (`text/event-stream`) stream pushing node progress:
+- `event: node_update` — Fired when a node (`analyst`, `developer`, `sandbox`) completes.
+- `event: human_approval_required` — Fired when execution suspends at the approval gate.
+- `event: complete` — Fired when the task reaches completion.
+
+### 4. Submit Human Approval Decision
+`POST /api/v1/tasks/{thread_id}/approve`  
+**Request Body**:
+```json
+{
+  "approved": true
+}
+```
+**Response**:
+```json
+{
+  "status": "RESUMED",
+  "message": "Graph resumed with approval state: True"
+}
+```
